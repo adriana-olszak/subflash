@@ -1,0 +1,43 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: "latest"
+
+      - name: Install mdbook-mermaid (for diagrams)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook-mermaid
+
+      - name: Build Book
+        run: |
+          # Initialize a new mdBook if it doesn't exist
+          if [ ! -f book.toml ]; then
+            mdbook init
+            # Configure book.toml for Mermaid support
+            echo '[preprocessor.mermaid]' >> book.toml
+            echo 'command = "mdbook-mermaid"' >> book.toml
+            echo '[output.html]' >> book.toml
+            echo 'additional-js = ["mermaid.min.js"]' >> book.toml
+          fi
+          mdbook build
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./book

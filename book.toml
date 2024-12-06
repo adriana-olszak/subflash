@@ -1,0 +1,12 @@
+[book]
+authors = ["Adriana Olszak"]
+language = "en"
+multilingual = false
+src = "docs"
+title = "Subflash Documentation"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+
+[output.html]
+additional-js = ["docs/mermaid.min.js", "docs/mermaid-init.js"]
